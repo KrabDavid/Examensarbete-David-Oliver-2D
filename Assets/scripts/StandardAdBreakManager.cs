@@ -18,8 +18,11 @@ public class StandardAdBreakManager : MonoBehaviour
     public float timeUntilAdBreak = 10f;
     public float adDuration = 45f;
 
-    [Header("Ad Pool")]
-    public VideoClip mcdonaldsAdClip;
+    [Header("Guaranteed Ads")]
+    public VideoClip mcdonaldsAdClip;   // First Ad
+    public VideoClip elgigantenAdClip;  // Second Ad
+
+    [Header("Remaining Ad Pool (Ad #3+)")]
     public VideoClip[] allAdClips;
 
     private bool adHasBeenTriggered = false;
@@ -27,6 +30,7 @@ public class StandardAdBreakManager : MonoBehaviour
     private float adTimer;
     private Coroutine adLoopCoroutine;
 
+    private int currentAdIndex = 0; // Tracks whether this is ad 1, 2, 3...
     private List<VideoClip> playedAdClips = new List<VideoClip>();
 
     void Start()
@@ -44,7 +48,7 @@ public class StandardAdBreakManager : MonoBehaviour
             StartAdBreak();
         }
 
-        // 2. Countdown timer only (No input checks)
+        // 2. Countdown timer
         if (isAdRunning)
         {
             adTimer -= Time.deltaTime;
@@ -66,6 +70,7 @@ public class StandardAdBreakManager : MonoBehaviour
         adHasBeenTriggered = true;
         isAdRunning = true;
         adTimer = adDuration;
+        currentAdIndex = 0; // Reset count for this ad break
 
         mainVideoPlayer.Pause();
         adOverlayPanel.SetActive(true);
@@ -76,23 +81,28 @@ public class StandardAdBreakManager : MonoBehaviour
 
     private IEnumerator PlayAdSequence()
     {
-        bool isFirstAd = true;
-
         while (isAdRunning)
         {
+            currentAdIndex++;
             VideoClip selectedClip = null;
 
-            // Always start with McDonald's
-            if (isFirstAd)
+            // 1st Ad = Always McDonald's
+            if (currentAdIndex == 1)
             {
                 selectedClip = mcdonaldsAdClip;
-                isFirstAd = false;
             }
+            // 2nd Ad = Always Elgiganten
+            else if (currentAdIndex == 2)
+            {
+                selectedClip = elgigantenAdClip;
+            }
+            // 3rd+ Ad = Random from pool
             else
             {
                 selectedClip = GetUnplayedAd();
             }
 
+            // Track played clips so they don't repeat unnecessarily
             if (selectedClip != null && !playedAdClips.Contains(selectedClip))
             {
                 playedAdClips.Add(selectedClip);
@@ -102,6 +112,7 @@ public class StandardAdBreakManager : MonoBehaviour
             {
                 adVideoPlayer.clip = selectedClip;
                 adVideoPlayer.Prepare();
+
                 while (!adVideoPlayer.isPrepared)
                 {
                     if (!isAdRunning) yield break;
@@ -126,18 +137,35 @@ public class StandardAdBreakManager : MonoBehaviour
     private VideoClip GetUnplayedAd()
     {
         List<VideoClip> unplayed = new List<VideoClip>();
+
         foreach (var clip in allAdClips)
         {
-            if (clip != null && !playedAdClips.Contains(clip))
+            // Ignore null, already played clips, and the fixed 1st/2nd clips
+            if (clip != null &&
+                !playedAdClips.Contains(clip) &&
+                clip != mcdonaldsAdClip &&
+                clip != elgigantenAdClip)
             {
                 unplayed.Add(clip);
             }
         }
 
+        // If all pool clips were played, reset pool history
         if (unplayed.Count == 0)
         {
             playedAdClips.Clear();
-            return allAdClips[Random.Range(0, allAdClips.Length)];
+
+            // Re-populate valid options without McDonalds/Elgiganten
+            foreach (var clip in allAdClips)
+            {
+                if (clip != null && clip != mcdonaldsAdClip && clip != elgigantenAdClip)
+                {
+                    unplayed.Add(clip);
+                }
+            }
+
+            // Fallback if allAdClips was empty
+            if (unplayed.Count == 0) return null;
         }
 
         return unplayed[Random.Range(0, unplayed.Count)];

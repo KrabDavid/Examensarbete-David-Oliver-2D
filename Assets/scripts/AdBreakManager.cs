@@ -35,8 +35,11 @@ public class AdBreakManager : MonoBehaviour
     public float adDuration = 45f;        // Total duration of ad break
     public float popUpDuration = 10f;     // Seconds user has to choose after pressing E
 
+    [Header("Guaranteed Ads")]
+    public VideoClip mcdonaldsAdClip;    // Drag McDonald's ad clip here (1st Ad)
+    public VideoClip elgigantenAdClip;   // Drag Elgiganten ad clip here (2nd Ad)
+
     [Header("Ad Pool Settings")]
-    public VideoClip mcdonaldsAdClip;     // Drag mcdonaldsAd here explicitly
     public List<AdCategory> adCategories = new List<AdCategory>(); // Travel, Pets, Interior, Training
     public VideoClip[] uncategorizedAdClips; // General ads not tied to any category
 
@@ -45,6 +48,8 @@ public class AdBreakManager : MonoBehaviour
     private float adTimer;
     private Coroutine adLoopCoroutine;
     private bool skipRequested = false;
+
+    private int currentAdIndex = 0; // Tracks ad sequence (1 = McD, 2 = Elgiganten, 3+ = Random/Selected)
 
     // Pop-Up state tracking
     private bool isPopUpActive = false;
@@ -143,6 +148,7 @@ public class AdBreakManager : MonoBehaviour
         isAdRunning = true;
         adTimer = adDuration;
         activeSelectedCategory = null; // Reset category filter on new break
+        currentAdIndex = 0;           // Reset sequence index for this break
 
         mainVideoPlayer.Pause();
         adOverlayPanel.SetActive(true);
@@ -153,33 +159,36 @@ public class AdBreakManager : MonoBehaviour
 
     private IEnumerator PlayAdSequence()
     {
-        bool isFirstAd = true;
-
         while (isAdRunning)
         {
             skipRequested = false;
+            currentAdIndex++;
             VideoClip selectedClip = null;
 
-            // 1. Always force McDonald's ad as first clip
-            if (isFirstAd)
+            // 1. Always force McDonald's ad as 1st clip
+            if (currentAdIndex == 1)
             {
                 selectedClip = mcdonaldsAdClip;
-                isFirstAd = false;
             }
-            // 2. If a specific category is locked by user choice:
+            // 2. Always force Elgiganten ad as 2nd clip
+            else if (currentAdIndex == 2)
+            {
+                selectedClip = elgigantenAdClip;
+            }
+            // 3. 3rd+ Ad: If a specific category is chosen by user
             else if (activeSelectedCategory != null)
             {
                 selectedClip = GetUnplayedAdFromCategory(activeSelectedCategory);
 
-                // If ALL clips in this specific category have played, auto-release category lock
+                // If ALL clips in this category were played, reset lock to all sources
                 if (selectedClip == null)
                 {
-                    Debug.Log($"All ads in '{activeSelectedCategory.categoryName}' completed! Reverting back to random selection (including uncategorized).");
+                    Debug.Log($"All ads in '{activeSelectedCategory.categoryName}' completed! Reverting back to random selection.");
                     activeSelectedCategory = null;
                     selectedClip = GetUnplayedAdFromAllSources();
                 }
             }
-            // 3. Fallback / Default state: Pick randomly across ALL categories AND uncategorized ads
+            // 4. 3rd+ Ad: Fallback / Default random selection
             else
             {
                 selectedClip = GetUnplayedAdFromAllSources();
@@ -236,7 +245,7 @@ public class AdBreakManager : MonoBehaviour
     private void SelectCategory(AdCategory chosenCategory)
     {
         activeSelectedCategory = chosenCategory;
-        skipRequested = true; // Instantly switch to the chosen category's first ad clip
+        skipRequested = true; // Instantly switch to chosen category's ad clip
         ClosePopUp();
     }
 
@@ -251,7 +260,10 @@ public class AdBreakManager : MonoBehaviour
         List<VideoClip> unplayed = new List<VideoClip>();
         foreach (var clip in category.categoryClips)
         {
-            if (clip != null && !playedAdClips.Contains(clip))
+            if (clip != null &&
+                !playedAdClips.Contains(clip) &&
+                clip != mcdonaldsAdClip &&
+                clip != elgigantenAdClip)
             {
                 unplayed.Add(clip);
             }
@@ -265,14 +277,17 @@ public class AdBreakManager : MonoBehaviour
     {
         List<VideoClip> unplayedPool = new List<VideoClip>();
 
-        // Add unplayed clips from all 4 categories
+        // Add unplayed clips from all categories
         foreach (var cat in adCategories)
         {
             if (cat.categoryClips != null)
             {
                 foreach (var clip in cat.categoryClips)
                 {
-                    if (clip != null && !playedAdClips.Contains(clip))
+                    if (clip != null &&
+                        !playedAdClips.Contains(clip) &&
+                        clip != mcdonaldsAdClip &&
+                        clip != elgigantenAdClip)
                     {
                         unplayedPool.Add(clip);
                     }
@@ -285,18 +300,47 @@ public class AdBreakManager : MonoBehaviour
         {
             foreach (var clip in uncategorizedAdClips)
             {
-                if (clip != null && !playedAdClips.Contains(clip))
+                if (clip != null &&
+                    !playedAdClips.Contains(clip) &&
+                    clip != mcdonaldsAdClip &&
+                    clip != elgigantenAdClip)
                 {
                     unplayedPool.Add(clip);
                 }
             }
         }
 
-        // Reset tracking if every single ad everywhere has been shown
+        // Reset tracking if every single pool ad has been shown
         if (unplayedPool.Count == 0)
         {
             playedAdClips.Clear();
-            return GetUnplayedAdFromAllSources();
+
+            // Re-populate unplayed list excluding McD and Elgiganten
+            foreach (var cat in adCategories)
+            {
+                if (cat.categoryClips != null)
+                {
+                    foreach (var clip in cat.categoryClips)
+                    {
+                        if (clip != null && clip != mcdonaldsAdClip && clip != elgigantenAdClip)
+                        {
+                            unplayedPool.Add(clip);
+                        }
+                    }
+                }
+            }
+            if (uncategorizedAdClips != null)
+            {
+                foreach (var clip in uncategorizedAdClips)
+                {
+                    if (clip != null && clip != mcdonaldsAdClip && clip != elgigantenAdClip)
+                    {
+                        unplayedPool.Add(clip);
+                    }
+                }
+            }
+
+            if (unplayedPool.Count == 0) return null;
         }
 
         return unplayedPool[Random.Range(0, unplayedPool.Count)];
