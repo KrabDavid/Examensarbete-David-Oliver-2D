@@ -697,7 +697,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &712482650
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1222,11 +1222,9 @@ MonoBehaviour:
   foodPrefabs:
   - {fileID: 5692308593461402551, guid: 17ab8a457ae68084ca097b7df3cb6146, type: 3}
   - {fileID: 3499460893749180459, guid: c46a9ce4e947cb2468c0d4a2b658fd9a, type: 3}
-  spawnY: 6
-  minX: -7
-  maxX: 7
   spawnInterval: 1.2
-  isSpawning: 1
+  xSpawnRange: 8
+  ySpawnPosition: 6
 --- !u!4 &1371229258
 Transform:
   m_ObjectHideFlags: 0
@@ -1509,7 +1507,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1623638070
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1540,7 +1538,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1623638069}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
@@ -1736,9 +1734,9 @@ Transform:
   m_GameObject: {fileID: 1783006685}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_LocalPosition: {x: 0, y: 0.165, z: 0}
+  m_LocalScale: {x: 1.5, y: 1.5, z: 1.5}
+  m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 735026446}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -1791,8 +1789,8 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 7482667652216324306, guid: 311925a002f4447b3a28927169b83ea6, type: 3}
-  m_Color: {r: 0, g: 0, b: 0, a: 1}
+  m_Sprite: {fileID: 3473301114210871958, guid: 63750c0a1d919b549b208a113e2e4a9d, type: 3}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -1810,7 +1808,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2006906844}
-  - component: {fileID: 2006906843}
+  - component: {fileID: 2006906845}
   m_Layer: 0
   m_Name: _AdManager
   m_TagString: Untagged
@@ -1818,46 +1816,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &2006906843
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2006906842}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9c6354f62a927f448991f3c8baa3391d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::StandardAdBreakManager
-  mainVideoPlayer: {fileID: 223949136}
-  adVideoPlayer: {fileID: 0}
-  adOverlayPanel: {fileID: 0}
-  adTimerText: {fileID: 0}
-  timeUntilAdBreak: 10
-  adDuration: 45
-  mcdonaldsAdClip: {fileID: 32900000, guid: a86feb881d9e62f48a7bbe9585f0d99e, type: 3}
-  allAdClips:
-  - {fileID: 32900000, guid: 85b593b45a3477a4481816e794d78851, type: 3}
-  - {fileID: 32900000, guid: 888defb4409afc348b389fa770761220, type: 3}
-  - {fileID: 32900000, guid: 8aef1e95ef43b214c94042aaa1aa5429, type: 3}
-  - {fileID: 32900000, guid: f60d83bafc60cf640a8d1f900cbe51de, type: 3}
-  - {fileID: 32900000, guid: 928b642abbf322940939fcc821bbc846, type: 3}
-  - {fileID: 32900000, guid: 689ca4c3942a1a9409d06332a03a01d5, type: 3}
-  - {fileID: 32900000, guid: 3b529935f2b22084181b644c4cd1c0fc, type: 3}
-  - {fileID: 32900000, guid: d358148d9a2eb03468b5e7e9ab5654eb, type: 3}
-  - {fileID: 32900000, guid: 6c9e501bbbcedab49a46c0e162cdf9bb, type: 3}
-  - {fileID: 32900000, guid: 58765ab8d03bcdc4187ab52ed2e9a724, type: 3}
-  - {fileID: 32900000, guid: ab8bd1c7c871d134780cd8c6e5215c45, type: 3}
-  - {fileID: 32900000, guid: a71acfc45d5a1d242883277433bc4712, type: 3}
-  - {fileID: 32900000, guid: 4e7518dae71dc954881f997591bac438, type: 3}
-  - {fileID: 32900000, guid: c7cfc6c2fcd589848a04e6c107f6c79b, type: 3}
-  - {fileID: 32900000, guid: 5913a5ca6e20ea747ba61584aaa5bc0c, type: 3}
-  - {fileID: 32900000, guid: bc4b4fae020f648418e0b6b1131edadd, type: 3}
-  - {fileID: 32900000, guid: aaf744c28371b3e4291e1cb7dc2849cc, type: 3}
-  - {fileID: 32900000, guid: 940aef153fbdbd54d86c4af64fa9a872, type: 3}
-  - {fileID: 32900000, guid: d4f18f87f969de04f87d69f1cf1e3300, type: 3}
-  - {fileID: 32900000, guid: b5787ce031c809547bdf1bb7c328b206, type: 3}
 --- !u!4 &2006906844
 Transform:
   m_ObjectHideFlags: 0
@@ -1873,6 +1831,26 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2006906845
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2006906842}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 645ecc9bc8ee96c4abbcac2ef9fbb2a6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GameAdBreakManager
+  mainVideoPlayer: {fileID: 223949136}
+  mainVideoDisplay: {fileID: 712482649}
+  adOverlayPanel: {fileID: 1623638069}
+  adTimerText: {fileID: 1748259754}
+  playerObject: {fileID: 735026445}
+  foodSpawner: {fileID: 1371229256}
+  timeUntilAdBreak: 1
+  adDuration: 45
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
