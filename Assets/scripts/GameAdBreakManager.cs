@@ -1,6 +1,5 @@
 using System.Collections;
 using UnityEngine;
-using UnityEngine.UI;
 using UnityEngine.Video;
 using TMPro;
 
@@ -13,7 +12,6 @@ public class GameAdBreakManager : MonoBehaviour
     [Header("UI Elements")]
     public GameObject adOverlayPanel;
     public TextMeshProUGUI adTimerText;
-    public Image backgroundImageDisplay;
 
     [Header("Gameplay Objects")]
     public PlayerMovement2D playerMovement;
@@ -26,8 +24,9 @@ public class GameAdBreakManager : MonoBehaviour
     private void Start()
     {
         SetGameplayActive(false);
-        if (adOverlayPanel != null) adOverlayPanel.SetActive(false);
+        DisableAllBackgrounds();
 
+        if (adOverlayPanel != null) adOverlayPanel.SetActive(false);
         if (mainVideoDisplay != null) mainVideoDisplay.SetActive(true);
         if (mainVideoPlayer != null) mainVideoPlayer.Play();
 
@@ -46,7 +45,7 @@ public class GameAdBreakManager : MonoBehaviour
         if (adOverlayPanel != null) adOverlayPanel.SetActive(true);
         SetGameplayActive(true);
 
-        // Calculate total ad duration based on stage count (3 stages * 15s = 45s)
+        // Calculate total ad duration (3 stages * 15s = 45s)
         float totalAdDuration = stageDuration * adStages.Length;
         float totalTimer = totalAdDuration;
         int currentStageIndex = -1;
@@ -54,20 +53,15 @@ public class GameAdBreakManager : MonoBehaviour
         // 3. Single 45-second Countdown Loop
         while (totalTimer > 0)
         {
-            // Update continuous 45s timer text on UI
             if (adTimerText != null)
             {
                 adTimerText.text = "Ad ends in: " + Mathf.CeilToInt(totalTimer) + "s";
             }
 
-            // Calculate which stage should be active based on elapsed time
             float elapsedTime = totalAdDuration - totalTimer;
             int targetStageIndex = Mathf.FloorToInt(elapsedTime / stageDuration);
-
-            // Clamp index to prevent out-of-bounds array errors at the final frame
             targetStageIndex = Mathf.Clamp(targetStageIndex, 0, adStages.Length - 1);
 
-            // Swap stage whenever we reach a new 15-second interval
             if (targetStageIndex != currentStageIndex)
             {
                 currentStageIndex = targetStageIndex;
@@ -80,6 +74,7 @@ public class GameAdBreakManager : MonoBehaviour
 
         // 4. End Ad & Restore Main Video
         SetGameplayActive(false);
+        DisableAllBackgrounds();
 
         if (adOverlayPanel != null) adOverlayPanel.SetActive(false);
         if (mainVideoDisplay != null) mainVideoDisplay.SetActive(true);
@@ -88,10 +83,13 @@ public class GameAdBreakManager : MonoBehaviour
 
     private void ApplyStage(AdStageData stage)
     {
-        // Swap Background
-        if (backgroundImageDisplay != null && stage.backgroundImage != null)
+        // First disable all stage backgrounds to ensure no overlap
+        DisableAllBackgrounds();
+
+        // Turn on the specific background for this stage
+        if (stage.backgroundObject != null)
         {
-            backgroundImageDisplay.sprite = stage.backgroundImage;
+            stage.backgroundObject.SetActive(true);
         }
 
         // Swap Player Animation Sprites
@@ -105,6 +103,19 @@ public class GameAdBreakManager : MonoBehaviour
         if (foodSpawner != null)
         {
             foodSpawner.foodPrefabs = stage.stageItemPrefabs;
+        }
+    }
+
+    private void DisableAllBackgrounds()
+    {
+        if (adStages == null) return;
+
+        foreach (var stage in adStages)
+        {
+            if (stage.backgroundObject != null)
+            {
+                stage.backgroundObject.SetActive(false);
+            }
         }
     }
 

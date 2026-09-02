@@ -4,12 +4,12 @@ using UnityEngine;
 public class AdStageData
 {
     public string stageName;
-    public Sprite backgroundImage;
+    public GameObject backgroundObject; // Drag bkMcDonalds, Nike, or Elgiganten here
 
     [Header("Player Sprites")]
     public Sprite playerWalkFrame1;
     public Sprite playerWalkFrame2;
 
     [Header("Food / Item Spawner Prefabs")]
-    public GameObject[] stageItemPrefabs; // e.g. Burger/Fries for McD, Shoes for Nike
+    public GameObject[] stageItemPrefabs;
 }
