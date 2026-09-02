@@ -2155,12 +2155,15 @@ MonoBehaviour:
   mainVideoDisplay: {fileID: 712482649}
   adOverlayPanel: {fileID: 1623638069}
   adTimerText: {fileID: 1748259754}
+  counterRenderer: {fileID: 13787112}
   playerMovement: {fileID: 735026447}
   foodSpawner: {fileID: 1371229257}
+  timeUntilAdBreak: 3
   stageDuration: 15
   adStages:
   - stageName: McDonalds
     backgroundObject: {fileID: 1070035730}
+    counterColor: {r: 1, g: 0.83921576, b: 0.43921572, a: 1}
     playerWalkFrame1: {fileID: 3473301114210871958, guid: 63750c0a1d919b549b208a113e2e4a9d, type: 3}
     playerWalkFrame2: {fileID: -315914143745883535, guid: 63750c0a1d919b549b208a113e2e4a9d, type: 3}
     stageItemPrefabs:
@@ -2168,6 +2171,7 @@ MonoBehaviour:
     - {fileID: 3499460893749180459, guid: c46a9ce4e947cb2468c0d4a2b658fd9a, type: 3}
   - stageName: Elgiganten
     backgroundObject: {fileID: 1497895375}
+    counterColor: {r: 0.03529412, g: 0.0627451, b: 0.27450982, a: 1}
     playerWalkFrame1: {fileID: 3910613824999080036, guid: 704deafeeac9d8442b3b5155396e2229, type: 3}
     playerWalkFrame2: {fileID: 5556434506182482011, guid: 704deafeeac9d8442b3b5155396e2229, type: 3}
     stageItemPrefabs:
@@ -2175,6 +2179,7 @@ MonoBehaviour:
     - {fileID: 3499460893749180459, guid: cca784b132bcdaa4488631c9f837575d, type: 3}
   - stageName: Nike
     backgroundObject: {fileID: 1538594069}
+    counterColor: {r: 0.78823537, g: 0.78823537, b: 0.7843138, a: 1}
     playerWalkFrame1: {fileID: 4365338089810306466, guid: 254d593f21460c4418d24c2e71f85637, type: 3}
     playerWalkFrame2: {fileID: 1194467241048958515, guid: 254d593f21460c4418d24c2e71f85637, type: 3}
     stageItemPrefabs:

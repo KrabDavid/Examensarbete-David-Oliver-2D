@@ -4,7 +4,8 @@ using UnityEngine;
 public class AdStageData
 {
     public string stageName;
-    public GameObject backgroundObject; // Drag bkMcDonalds, Nike, or Elgiganten here
+    public GameObject backgroundObject;
+    public Color counterColor = Color.white; // Choose the color per stage in the Inspector
 
     [Header("Player Sprites")]
     public Sprite playerWalkFrame1;

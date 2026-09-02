@@ -13,13 +13,17 @@ public class GameAdBreakManager : MonoBehaviour
     public GameObject adOverlayPanel;
     public TextMeshProUGUI adTimerText;
 
+    [Header("Environment Controls")]
+    public SpriteRenderer counterRenderer; // Drag 'Counter BK' GameObject here
+
     [Header("Gameplay Objects")]
     public PlayerMovement2D playerMovement;
     public FoodSpawner foodSpawner;
 
     [Header("Stages Configuration")]
-    public float stageDuration = 15f; // 15 seconds per stage
-    public AdStageData[] adStages;    // Element 0: McD, Element 1: Nike, Element 2: Elgiganten
+    public float timeUntilAdBreak = 10f; // Delay before the interactive ad triggers
+    public float stageDuration = 15f;    // Duration per brand stage
+    public AdStageData[] adStages;
 
     private void Start()
     {
@@ -35,8 +39,8 @@ public class GameAdBreakManager : MonoBehaviour
 
     private IEnumerator AdBreakRoutine()
     {
-        // 1. Wait until ad break triggers
-        yield return new WaitForSeconds(10f);
+        // 1. Wait for configured break delay
+        yield return new WaitForSeconds(timeUntilAdBreak);
 
         // 2. Pause & Hide Main Video
         if (mainVideoPlayer != null) mainVideoPlayer.Pause();
@@ -45,12 +49,12 @@ public class GameAdBreakManager : MonoBehaviour
         if (adOverlayPanel != null) adOverlayPanel.SetActive(true);
         SetGameplayActive(true);
 
-        // Calculate total ad duration (3 stages * 15s = 45s)
+        // Calculate total ad duration (e.g., 3 stages * 15s = 45s)
         float totalAdDuration = stageDuration * adStages.Length;
         float totalTimer = totalAdDuration;
         int currentStageIndex = -1;
 
-        // 3. Single 45-second Countdown Loop
+        // 3. Single continuous countdown loop
         while (totalTimer > 0)
         {
             if (adTimerText != null)
@@ -62,6 +66,7 @@ public class GameAdBreakManager : MonoBehaviour
             int targetStageIndex = Mathf.FloorToInt(elapsedTime / stageDuration);
             targetStageIndex = Mathf.Clamp(targetStageIndex, 0, adStages.Length - 1);
 
+            // Swap stage whenever we hit a new interval
             if (targetStageIndex != currentStageIndex)
             {
                 currentStageIndex = targetStageIndex;
@@ -83,23 +88,28 @@ public class GameAdBreakManager : MonoBehaviour
 
     private void ApplyStage(AdStageData stage)
     {
-        // First disable all stage backgrounds to ensure no overlap
         DisableAllBackgrounds();
 
-        // Turn on the specific background for this stage
+        // 1. Activate stage background
         if (stage.backgroundObject != null)
         {
             stage.backgroundObject.SetActive(true);
         }
 
-        // Swap Player Animation Sprites
+        // 2. Tint Counter BK color
+        if (counterRenderer != null)
+        {
+            counterRenderer.color = stage.counterColor;
+        }
+
+        // 3. Swap Player Sprites
         if (playerMovement != null)
         {
             playerMovement.walkFrame1 = stage.playerWalkFrame1;
             playerMovement.walkFrame2 = stage.playerWalkFrame2;
         }
 
-        // Swap Spawned Items
+        // 4. Swap Prefabs
         if (foodSpawner != null)
         {
             foodSpawner.foodPrefabs = stage.stageItemPrefabs;
