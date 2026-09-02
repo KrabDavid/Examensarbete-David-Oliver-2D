@@ -1,16 +1,15 @@
 using UnityEngine;
 
-public class AdStageData : MonoBehaviour
+[System.Serializable]
+public class AdStageData
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-        
-    }
+    public string stageName;
+    public Sprite backgroundImage;
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+    [Header("Player Sprites")]
+    public Sprite playerWalkFrame1;
+    public Sprite playerWalkFrame2;
+
+    [Header("Food / Item Spawner Prefabs")]
+    public GameObject[] stageItemPrefabs; // e.g. Burger/Fries for McD, Shoes for Nike
 }

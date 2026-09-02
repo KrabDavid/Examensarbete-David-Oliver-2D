@@ -1,5 +1,6 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.UI;
 using UnityEngine.Video;
 using TMPro;
 
@@ -7,94 +8,109 @@ public class GameAdBreakManager : MonoBehaviour
 {
     [Header("Main Video")]
     public VideoPlayer mainVideoPlayer;
-    public GameObject mainVideoDisplay; // The RawImage or Screen object showing the main video
+    public GameObject mainVideoDisplay;
 
     [Header("UI Elements")]
-    public GameObject adOverlayPanel;   // UI containing the timer text or ad UI frame
+    public GameObject adOverlayPanel;
     public TextMeshProUGUI adTimerText;
+    public Image backgroundImageDisplay;
 
-    [Header("Gameplay Controls")]
-    public GameObject playerObject;     // e.g., Player
-    public GameObject foodSpawner;      // e.g., _FoodSpawner
+    [Header("Gameplay Objects")]
+    public PlayerMovement2D playerMovement;
+    public FoodSpawner foodSpawner;
 
-    [Header("Settings")]
-    public float timeUntilAdBreak = 10f; // Time in seconds before ad triggers
-    public float adDuration = 45f;       // Total minigame duration
+    [Header("Stages Configuration")]
+    public float stageDuration = 15f; // 15 seconds per stage
+    public AdStageData[] adStages;    // Element 0: McD, Element 1: Nike, Element 2: Elgiganten
 
     private void Start()
     {
-        // 1. Hide gameplay elements & ad UI at start
         SetGameplayActive(false);
         if (adOverlayPanel != null) adOverlayPanel.SetActive(false);
 
-        // 2. Ensure main video display is active and playing
         if (mainVideoDisplay != null) mainVideoDisplay.SetActive(true);
         if (mainVideoPlayer != null) mainVideoPlayer.Play();
 
-        // 3. Start timer to trigger the interactive ad break
         StartCoroutine(AdBreakRoutine());
     }
 
     private IEnumerator AdBreakRoutine()
     {
-        // Wait until it's time for the ad break
-        yield return new WaitForSeconds(timeUntilAdBreak);
+        // 1. Wait until ad break triggers
+        yield return new WaitForSeconds(10f);
 
-        // --- STEP 1: Pause & Hide Main Video ---
-        if (mainVideoPlayer != null)
-        {
-            mainVideoPlayer.Pause();
-        }
+        // 2. Pause & Hide Main Video
+        if (mainVideoPlayer != null) mainVideoPlayer.Pause();
+        if (mainVideoDisplay != null) mainVideoDisplay.SetActive(false);
 
-        // Hide the main video screen so the game underneath is revealed
-        if (mainVideoDisplay != null)
-        {
-            mainVideoDisplay.SetActive(false);
-        }
-
-        // --- STEP 2: Start Interactive Game Ad ---
-        if (adOverlayPanel != null)
-        {
-            adOverlayPanel.SetActive(true);
-        }
-
+        if (adOverlayPanel != null) adOverlayPanel.SetActive(true);
         SetGameplayActive(true);
 
-        // Run the minigame timer
-        float timer = adDuration;
-        while (timer > 0)
+        // Calculate total ad duration based on stage count (3 stages * 15s = 45s)
+        float totalAdDuration = stageDuration * adStages.Length;
+        float totalTimer = totalAdDuration;
+        int currentStageIndex = -1;
+
+        // 3. Single 45-second Countdown Loop
+        while (totalTimer > 0)
         {
+            // Update continuous 45s timer text on UI
             if (adTimerText != null)
             {
-                adTimerText.text = "Ad ends in: " + Mathf.CeilToInt(timer) + "s";
+                adTimerText.text = "Ad ends in: " + Mathf.CeilToInt(totalTimer) + "s";
             }
-            timer -= Time.deltaTime;
+
+            // Calculate which stage should be active based on elapsed time
+            float elapsedTime = totalAdDuration - totalTimer;
+            int targetStageIndex = Mathf.FloorToInt(elapsedTime / stageDuration);
+
+            // Clamp index to prevent out-of-bounds array errors at the final frame
+            targetStageIndex = Mathf.Clamp(targetStageIndex, 0, adStages.Length - 1);
+
+            // Swap stage whenever we reach a new 15-second interval
+            if (targetStageIndex != currentStageIndex)
+            {
+                currentStageIndex = targetStageIndex;
+                ApplyStage(adStages[currentStageIndex]);
+            }
+
+            totalTimer -= Time.deltaTime;
             yield return null;
         }
 
-        // --- STEP 3: End Game Ad & Restore Main Video ---
+        // 4. End Ad & Restore Main Video
         SetGameplayActive(false);
 
-        if (adOverlayPanel != null)
+        if (adOverlayPanel != null) adOverlayPanel.SetActive(false);
+        if (mainVideoDisplay != null) mainVideoDisplay.SetActive(true);
+        if (mainVideoPlayer != null) mainVideoPlayer.Play();
+    }
+
+    private void ApplyStage(AdStageData stage)
+    {
+        // Swap Background
+        if (backgroundImageDisplay != null && stage.backgroundImage != null)
         {
-            adOverlayPanel.SetActive(false);
+            backgroundImageDisplay.sprite = stage.backgroundImage;
         }
 
-        // Show and Resume Main Video
-        if (mainVideoDisplay != null)
+        // Swap Player Animation Sprites
+        if (playerMovement != null)
         {
-            mainVideoDisplay.SetActive(true);
+            playerMovement.walkFrame1 = stage.playerWalkFrame1;
+            playerMovement.walkFrame2 = stage.playerWalkFrame2;
         }
 
-        if (mainVideoPlayer != null)
+        // Swap Spawned Items
+        if (foodSpawner != null)
         {
-            mainVideoPlayer.Play();
+            foodSpawner.foodPrefabs = stage.stageItemPrefabs;
         }
     }
 
     private void SetGameplayActive(bool active)
     {
-        if (playerObject != null) playerObject.SetActive(active);
-        if (foodSpawner != null) foodSpawner.SetActive(active);
+        if (playerMovement != null) playerMovement.gameObject.SetActive(active);
+        if (foodSpawner != null) foodSpawner.enabled = active;
     }
 }

@@ -1971,10 +1971,32 @@ MonoBehaviour:
   mainVideoDisplay: {fileID: 712482649}
   adOverlayPanel: {fileID: 1623638069}
   adTimerText: {fileID: 1748259754}
-  playerObject: {fileID: 735026445}
-  foodSpawner: {fileID: 1371229256}
-  timeUntilAdBreak: 1
-  adDuration: 45
+  backgroundImageDisplay: {fileID: 0}
+  playerMovement: {fileID: 735026447}
+  foodSpawner: {fileID: 1371229257}
+  stageDuration: 15
+  adStages:
+  - stageName: McDonalds
+    backgroundImage: {fileID: -6653244928049016558, guid: 2e17eb6bd6ae6e648b56a29fee23d65e, type: 3}
+    playerWalkFrame1: {fileID: 3473301114210871958, guid: 63750c0a1d919b549b208a113e2e4a9d, type: 3}
+    playerWalkFrame2: {fileID: -315914143745883535, guid: 63750c0a1d919b549b208a113e2e4a9d, type: 3}
+    stageItemPrefabs:
+    - {fileID: 5692308593461402551, guid: 17ab8a457ae68084ca097b7df3cb6146, type: 3}
+    - {fileID: 3499460893749180459, guid: c46a9ce4e947cb2468c0d4a2b658fd9a, type: 3}
+  - stageName: Elgiganten
+    backgroundImage: {fileID: -6653244928049016558, guid: 2e17eb6bd6ae6e648b56a29fee23d65e, type: 3}
+    playerWalkFrame1: {fileID: 3910613824999080036, guid: 704deafeeac9d8442b3b5155396e2229, type: 3}
+    playerWalkFrame2: {fileID: 5556434506182482011, guid: 704deafeeac9d8442b3b5155396e2229, type: 3}
+    stageItemPrefabs:
+    - {fileID: 5692308593461402551, guid: fddf8301a81964642a2ff79b0c6700f2, type: 3}
+    - {fileID: 3499460893749180459, guid: cca784b132bcdaa4488631c9f837575d, type: 3}
+  - stageName: Nike
+    backgroundImage: {fileID: -6653244928049016558, guid: 2e17eb6bd6ae6e648b56a29fee23d65e, type: 3}
+    playerWalkFrame1: {fileID: 4365338089810306466, guid: 254d593f21460c4418d24c2e71f85637, type: 3}
+    playerWalkFrame2: {fileID: 1194467241048958515, guid: 254d593f21460c4418d24c2e71f85637, type: 3}
+    stageItemPrefabs:
+    - {fileID: 5692308593461402551, guid: 450dfdd1369b0d045b333b4525ee3d35, type: 3}
+    - {fileID: 3499460893749180459, guid: 9d5dbb9146fca6142b1cb5df3fd05594, type: 3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
