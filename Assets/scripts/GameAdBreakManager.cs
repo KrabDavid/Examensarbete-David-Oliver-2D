@@ -156,7 +156,7 @@ public class GameAdBreakManager : MonoBehaviour
 
             if (rewardText != null)
             {
-                rewardText.text = $"GREAT JOB!\nScore: {capturedScore}\nYou unlocked a 10% discount!";
+                rewardText.text = $"BRA JOBBAT !\nScore: {capturedScore}\nDU VANN 10% RABATT!";
             }
 
             endScreenPanel.SetActive(true);

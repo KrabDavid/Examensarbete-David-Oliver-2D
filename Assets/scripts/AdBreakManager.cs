@@ -31,17 +31,17 @@ public class AdBreakManager : MonoBehaviour
     public TMP_Text optionDText;
 
     [Header("Settings")]
-    public float timeUntilAdBreak = 10f; // Seconds before main video is interrupted
-    public float adDuration = 45f;        // Total duration of ad break
-    public float popUpDuration = 10f;     // Seconds user has to choose after pressing E
+    public float timeUntilAdBreak = 10f;
+    public float adDuration = 45f;
+    public float popUpDuration = 10f;
 
     [Header("Guaranteed Ads")]
-    public VideoClip mcdonaldsAdClip;    // Drag McDonald's ad clip here (1st Ad)
-    public VideoClip elgigantenAdClip;   // Drag Elgiganten ad clip here (2nd Ad)
+    public VideoClip mcdonaldsAdClip;
+    public VideoClip elgigantenAdClip;
 
     [Header("Ad Pool Settings")]
-    public List<AdCategory> adCategories = new List<AdCategory>(); // Travel, Pets, Interior, Training
-    public VideoClip[] uncategorizedAdClips; // General ads not tied to any category
+    public List<AdCategory> adCategories = new List<AdCategory>();
+    public VideoClip[] uncategorizedAdClips;
 
     private bool adHasBeenTriggered = false;
     private bool isAdRunning = false;
@@ -49,14 +49,12 @@ public class AdBreakManager : MonoBehaviour
     private Coroutine adLoopCoroutine;
     private bool skipRequested = false;
 
-    private int currentAdIndex = 0; // Tracks ad sequence (1 = McD, 2 = Elgiganten, 3+ = Random/Selected)
+    private int currentAdIndex = 0;
 
-    // Pop-Up state tracking
     private bool isPopUpActive = false;
     private float popUpTimer;
     private AdCategory activeSelectedCategory = null;
 
-    // Played tracking
     private List<VideoClip> playedAdClips = new List<VideoClip>();
 
     void Start()
@@ -70,13 +68,11 @@ public class AdBreakManager : MonoBehaviour
 
     void Update()
     {
-        // 1. Trigger the main ad break after set time
         if (!adHasBeenTriggered && mainVideoPlayer.time >= timeUntilAdBreak)
         {
             StartAdBreak();
         }
 
-        // 2. Handle overall 45s ad break countdown & Key Inputs
         if (isAdRunning)
         {
             adTimer -= Time.deltaTime;
@@ -88,19 +84,16 @@ public class AdBreakManager : MonoBehaviour
 
             if (Keyboard.current != null)
             {
-                // Spacebar skip check (only when menu isn't active)
                 if (Keyboard.current.spaceKey.wasPressedThisFrame && !isPopUpActive)
                 {
                     skipRequested = true;
                 }
 
-                // Press 'E' to toggle Open Pop-up Menu
                 if (Keyboard.current.eKey.wasPressedThisFrame && !isPopUpActive)
                 {
                     OpenPopUp();
                 }
 
-                // Handle choices A, B, C, or D while Pop-Up is open
                 if (isPopUpActive)
                 {
                     popUpTimer -= Time.deltaTime;
@@ -126,7 +119,6 @@ public class AdBreakManager : MonoBehaviour
                         SelectCategory(adCategories[3]);
                     }
 
-                    // Auto-close pop-up if timer reaches 0
                     if (popUpTimer <= 0f)
                     {
                         ClosePopUp();
@@ -134,7 +126,6 @@ public class AdBreakManager : MonoBehaviour
                 }
             }
 
-            // End overall ad break when 45s duration finishes
             if (adTimer <= 0f)
             {
                 EndAdBreak();
@@ -147,8 +138,8 @@ public class AdBreakManager : MonoBehaviour
         adHasBeenTriggered = true;
         isAdRunning = true;
         adTimer = adDuration;
-        activeSelectedCategory = null; // Reset category filter on new break
-        currentAdIndex = 0;           // Reset sequence index for this break
+        activeSelectedCategory = null;
+        currentAdIndex = 0;
 
         mainVideoPlayer.Pause();
         adOverlayPanel.SetActive(true);
@@ -165,22 +156,18 @@ public class AdBreakManager : MonoBehaviour
             currentAdIndex++;
             VideoClip selectedClip = null;
 
-            // 1. Always force McDonald's ad as 1st clip
             if (currentAdIndex == 1)
             {
                 selectedClip = mcdonaldsAdClip;
             }
-            // 2. Always force Elgiganten ad as 2nd clip
             else if (currentAdIndex == 2)
             {
                 selectedClip = elgigantenAdClip;
             }
-            // 3. 3rd+ Ad: If a specific category is chosen by user
             else if (activeSelectedCategory != null)
             {
                 selectedClip = GetUnplayedAdFromCategory(activeSelectedCategory);
 
-                // If ALL clips in this category were played, reset lock to all sources
                 if (selectedClip == null)
                 {
                     Debug.Log($"All ads in '{activeSelectedCategory.categoryName}' completed! Reverting back to random selection.");
@@ -188,19 +175,16 @@ public class AdBreakManager : MonoBehaviour
                     selectedClip = GetUnplayedAdFromAllSources();
                 }
             }
-            // 4. 3rd+ Ad: Fallback / Default random selection
             else
             {
                 selectedClip = GetUnplayedAdFromAllSources();
             }
 
-            // Track played clip
             if (selectedClip != null && !playedAdClips.Contains(selectedClip))
             {
                 playedAdClips.Add(selectedClip);
             }
 
-            // Prepare & Play
             if (selectedClip != null)
             {
                 adVideoPlayer.clip = selectedClip;
@@ -215,7 +199,6 @@ public class AdBreakManager : MonoBehaviour
                 yield return null;
             }
 
-            // Wait until clip ends, spacebar skip occurs, or ad duration finishes
             while (adVideoPlayer.isPlaying && isAdRunning && !skipRequested)
             {
                 yield return null;
@@ -230,10 +213,15 @@ public class AdBreakManager : MonoBehaviour
     {
         if (categoryPopUpPanel == null) return;
 
+        // Play SFX when opening menu
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.PlayOpenClick();
+        }
+
         isPopUpActive = true;
         popUpTimer = popUpDuration;
 
-        // Populate UI Text labels for A, B, C, and D based on adCategories list order
         if (optionAText != null && adCategories.Count > 0) optionAText.text = "[A] " + adCategories[0].categoryName;
         if (optionBText != null && adCategories.Count > 1) optionBText.text = "[B] " + adCategories[1].categoryName;
         if (optionCText != null && adCategories.Count > 2) optionCText.text = "[C] " + adCategories[2].categoryName;
@@ -244,8 +232,14 @@ public class AdBreakManager : MonoBehaviour
 
     private void SelectCategory(AdCategory chosenCategory)
     {
+        // Play SFX when confirming menu selection
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.PlayConfirmClick();
+        }
+
         activeSelectedCategory = chosenCategory;
-        skipRequested = true; // Instantly switch to chosen category's ad clip
+        skipRequested = true;
         ClosePopUp();
     }
 
@@ -269,7 +263,7 @@ public class AdBreakManager : MonoBehaviour
             }
         }
 
-        if (unplayed.Count == 0) return null; // Category exhausted
+        if (unplayed.Count == 0) return null;
         return unplayed[Random.Range(0, unplayed.Count)];
     }
 
@@ -277,7 +271,6 @@ public class AdBreakManager : MonoBehaviour
     {
         List<VideoClip> unplayedPool = new List<VideoClip>();
 
-        // Add unplayed clips from all categories
         foreach (var cat in adCategories)
         {
             if (cat.categoryClips != null)
@@ -295,7 +288,6 @@ public class AdBreakManager : MonoBehaviour
             }
         }
 
-        // Add unplayed clips from uncategorized pool
         if (uncategorizedAdClips != null)
         {
             foreach (var clip in uncategorizedAdClips)
@@ -310,12 +302,10 @@ public class AdBreakManager : MonoBehaviour
             }
         }
 
-        // Reset tracking if every single pool ad has been shown
         if (unplayedPool.Count == 0)
         {
             playedAdClips.Clear();
 
-            // Re-populate unplayed list excluding McD and Elgiganten
             foreach (var cat in adCategories)
             {
                 if (cat.categoryClips != null)

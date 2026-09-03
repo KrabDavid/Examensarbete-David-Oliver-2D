@@ -26,7 +26,6 @@ public class FallingFoodItem : MonoBehaviour
         currentFallSpeed = Random.Range(minFallSpeed, maxFallSpeed);
         currentRotationSpeed = Random.Range(minRotationSpeed, maxRotationSpeed);
 
-        // Ensure Z position is forced to 0 on spawn
         Vector3 pos = transform.position;
         pos.z = 0f;
         transform.position = pos;
@@ -34,27 +33,35 @@ public class FallingFoodItem : MonoBehaviour
 
     void Update()
     {
-        // 1. Move down on Y axis (keeping Z locked at 0)
         transform.position += Vector3.down * currentFallSpeed * Time.deltaTime;
-
-        // 2. Rotate item visually
         transform.Rotate(0f, 0f, currentRotationSpeed * Time.deltaTime);
 
-        // 3. Fall off bottom of screen cleanup
+        // Item fell past player (Missed!)
         if (transform.position.y <= destroyYThreshold)
         {
             if (AdGameScoreManager.Instance != null)
             {
                 AdGameScoreManager.Instance.ResetStreak();
             }
+
+            // Trigger screen shake
+            if (CameraShake.Instance != null)
+            {
+                CameraShake.Instance.TriggerShake(0.15f, 0.2f);
+            }
+
+            // Trigger miss SFX
+            if (AudioManager.Instance != null)
+            {
+                AudioManager.Instance.PlayMiss();
+            }
+
             Destroy(gameObject);
         }
     }
 
-    // Trigger check for Player
     private void OnTriggerEnter2D(Collider2D other)
     {
-        // Debug check to verify collision triggers in Console
         Debug.Log("Collided with object: " + other.name);
 
         if (other.CompareTag("Player"))
@@ -64,7 +71,11 @@ public class FallingFoodItem : MonoBehaviour
                 AdGameScoreManager.Instance.AddPoints(foodType);
             }
 
-            // Immediately destroy item upon catching
+            if (AudioManager.Instance != null)
+            {
+                AudioManager.Instance.PlayPickUp();
+            }
+
             Destroy(gameObject);
         }
     }
