@@ -9,23 +9,29 @@ public class GameAdBreakManager : MonoBehaviour
     public VideoPlayer mainVideoPlayer;
     public GameObject mainVideoDisplay;
 
+    [Header("Audio Settings")]
+    public AudioSource adAudioSource;           // Drag an AudioSource component here
+    public AudioClip adMusicClip;               // Drag your imported music track here
+    public float targetMusicVolume = 0.5f;      // Max volume during the ad
+    public float fadeDuration = 1.5f;           // Fade-in / Fade-out time in seconds
+
     [Header("UI Elements")]
     public GameObject adOverlayPanel;
     public TextMeshProUGUI adTimerText;
 
     [Header("End Screen Overlay")]
-    public GameObject endScreenPanel;          // Panel with dark background image
-    public TextMeshProUGUI rewardText;          // Text showing final score & discount
-    public Animator endScreenAnimator;          // Optional: Animator component for UI transitions
-    public float endScreenDisplayDuration = 4f; // Time in seconds to show reward screen
+    public GameObject endScreenPanel;
+    public TextMeshProUGUI rewardText;
+    public Animator endScreenAnimator;
+    public float endScreenDisplayDuration = 4f;
 
     [Header("Environment Controls")]
-    public SpriteRenderer counterRenderer;      // Drag 'Counter BK' GameObject here
+    public SpriteRenderer counterRenderer;
 
     [Header("Gameplay Objects")]
     public PlayerMovement2D playerMovement;
     public FoodSpawner foodSpawner;
-    public int currentScore = 0;                // Tracks score for the final reward screen
+    public TextMeshProUGUI gameScoreText;
 
     [Header("Stages Configuration")]
     public float timeUntilAdBreak = 10f;
@@ -36,6 +42,12 @@ public class GameAdBreakManager : MonoBehaviour
     {
         SetGameplayActive(false);
         DisableAllBackgrounds();
+
+        if (adAudioSource != null)
+        {
+            adAudioSource.playOnAwake = false;
+            adAudioSource.volume = 0f;
+        }
 
         if (adOverlayPanel != null) adOverlayPanel.SetActive(false);
         if (endScreenPanel != null) endScreenPanel.SetActive(false);
@@ -50,18 +62,26 @@ public class GameAdBreakManager : MonoBehaviour
         // 1. Wait for break delay
         yield return new WaitForSeconds(timeUntilAdBreak);
 
-        // 2. Pause & Hide Main Video
+        // 2. Pause Main Video & Start Minigame
         if (mainVideoPlayer != null) mainVideoPlayer.Pause();
         if (mainVideoDisplay != null) mainVideoDisplay.SetActive(false);
 
         if (adOverlayPanel != null) adOverlayPanel.SetActive(true);
         SetGameplayActive(true);
 
+        // Start background music with a smooth fade-in
+        if (adAudioSource != null && adMusicClip != null)
+        {
+            adAudioSource.clip = adMusicClip;
+            adAudioSource.Play();
+            StartCoroutine(FadeAudio(adAudioSource, fadeDuration, targetMusicVolume));
+        }
+
         float totalAdDuration = stageDuration * adStages.Length;
         float totalTimer = totalAdDuration;
         int currentStageIndex = -1;
 
-        // 3. Minigame Countdown Loop (45s total)
+        // 3. 45-Second Stage Loop
         while (totalTimer > 0)
         {
             if (adTimerText != null)
@@ -83,13 +103,23 @@ public class GameAdBreakManager : MonoBehaviour
             yield return null;
         }
 
-        // 4. Pause Gameplay & Show End Reward Screen
+        // 4. Pause Gameplay & Fade Audio Out during End Screen
         SetGameplayActive(false);
+
+        if (adAudioSource != null)
+        {
+            StartCoroutine(FadeAudio(adAudioSource, fadeDuration, 0f));
+        }
 
         yield return StartCoroutine(ShowEndScreenSequence());
 
-        // 5. Cleanup & Restore Main Video
+        // 5. Restore Main Video
         DisableAllBackgrounds();
+
+        if (adAudioSource != null && adAudioSource.isPlaying)
+        {
+            adAudioSource.Stop();
+        }
 
         if (adOverlayPanel != null) adOverlayPanel.SetActive(false);
         if (endScreenPanel != null) endScreenPanel.SetActive(false);
@@ -98,26 +128,44 @@ public class GameAdBreakManager : MonoBehaviour
         if (mainVideoPlayer != null) mainVideoPlayer.Play();
     }
 
+    private IEnumerator FadeAudio(AudioSource source, float duration, float targetVolume)
+    {
+        float startVolume = source.volume;
+        float currentTime = 0f;
+
+        while (currentTime < duration)
+        {
+            currentTime += Time.deltaTime;
+            source.volume = Mathf.Lerp(startVolume, targetVolume, currentTime / duration);
+            yield return null;
+        }
+
+        source.volume = targetVolume;
+    }
+
     private IEnumerator ShowEndScreenSequence()
     {
         if (endScreenPanel != null)
         {
-            // Update reward text with player's total points
-            if (rewardText != null)
+            string capturedScore = "0";
+            if (gameScoreText != null)
             {
-                rewardText.text = $"GREAT JOB!\nScore: {currentScore}\nYou unlocked a 10% discount!";
+                capturedScore = System.Text.RegularExpressions.Regex.Match(gameScoreText.text, @"\d+").Value;
+                if (string.IsNullOrEmpty(capturedScore)) capturedScore = gameScoreText.text;
             }
 
-            // Display dark end screen panel
+            if (rewardText != null)
+            {
+                rewardText.text = $"GREAT JOB!\nScore: {capturedScore}\nYou unlocked a 10% discount!";
+            }
+
             endScreenPanel.SetActive(true);
 
-            // Trigger enter animation if Animator is assigned
             if (endScreenAnimator != null)
             {
                 endScreenAnimator.SetTrigger("Show");
             }
 
-            // Wait while player views their reward screen
             yield return new WaitForSeconds(endScreenDisplayDuration);
         }
     }
@@ -126,26 +174,15 @@ public class GameAdBreakManager : MonoBehaviour
     {
         DisableAllBackgrounds();
 
-        // 1. Activate stage background
-        if (stage.backgroundObject != null)
-        {
-            stage.backgroundObject.SetActive(true);
-        }
+        if (stage.backgroundObject != null) stage.backgroundObject.SetActive(true);
+        if (counterRenderer != null) counterRenderer.color = stage.counterColor;
 
-        // 2. Tint Counter BK color
-        if (counterRenderer != null)
-        {
-            counterRenderer.color = stage.counterColor;
-        }
-
-        // 3. Swap Player Sprites
         if (playerMovement != null)
         {
             playerMovement.walkFrame1 = stage.playerWalkFrame1;
             playerMovement.walkFrame2 = stage.playerWalkFrame2;
         }
 
-        // 4. Swap Prefabs
         if (foodSpawner != null)
         {
             foodSpawner.foodPrefabs = stage.stageItemPrefabs;
