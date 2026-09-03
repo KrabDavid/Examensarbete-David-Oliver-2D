@@ -13,16 +13,23 @@ public class GameAdBreakManager : MonoBehaviour
     public GameObject adOverlayPanel;
     public TextMeshProUGUI adTimerText;
 
+    [Header("End Screen Overlay")]
+    public GameObject endScreenPanel;          // Panel with dark background image
+    public TextMeshProUGUI rewardText;          // Text showing final score & discount
+    public Animator endScreenAnimator;          // Optional: Animator component for UI transitions
+    public float endScreenDisplayDuration = 4f; // Time in seconds to show reward screen
+
     [Header("Environment Controls")]
-    public SpriteRenderer counterRenderer; // Drag 'Counter BK' GameObject here
+    public SpriteRenderer counterRenderer;      // Drag 'Counter BK' GameObject here
 
     [Header("Gameplay Objects")]
     public PlayerMovement2D playerMovement;
     public FoodSpawner foodSpawner;
+    public int currentScore = 0;                // Tracks score for the final reward screen
 
     [Header("Stages Configuration")]
-    public float timeUntilAdBreak = 10f; // Delay before the interactive ad triggers
-    public float stageDuration = 15f;    // Duration per brand stage
+    public float timeUntilAdBreak = 10f;
+    public float stageDuration = 15f;
     public AdStageData[] adStages;
 
     private void Start()
@@ -31,6 +38,7 @@ public class GameAdBreakManager : MonoBehaviour
         DisableAllBackgrounds();
 
         if (adOverlayPanel != null) adOverlayPanel.SetActive(false);
+        if (endScreenPanel != null) endScreenPanel.SetActive(false);
         if (mainVideoDisplay != null) mainVideoDisplay.SetActive(true);
         if (mainVideoPlayer != null) mainVideoPlayer.Play();
 
@@ -39,7 +47,7 @@ public class GameAdBreakManager : MonoBehaviour
 
     private IEnumerator AdBreakRoutine()
     {
-        // 1. Wait for configured break delay
+        // 1. Wait for break delay
         yield return new WaitForSeconds(timeUntilAdBreak);
 
         // 2. Pause & Hide Main Video
@@ -49,12 +57,11 @@ public class GameAdBreakManager : MonoBehaviour
         if (adOverlayPanel != null) adOverlayPanel.SetActive(true);
         SetGameplayActive(true);
 
-        // Calculate total ad duration (e.g., 3 stages * 15s = 45s)
         float totalAdDuration = stageDuration * adStages.Length;
         float totalTimer = totalAdDuration;
         int currentStageIndex = -1;
 
-        // 3. Single continuous countdown loop
+        // 3. Minigame Countdown Loop (45s total)
         while (totalTimer > 0)
         {
             if (adTimerText != null)
@@ -66,7 +73,6 @@ public class GameAdBreakManager : MonoBehaviour
             int targetStageIndex = Mathf.FloorToInt(elapsedTime / stageDuration);
             targetStageIndex = Mathf.Clamp(targetStageIndex, 0, adStages.Length - 1);
 
-            // Swap stage whenever we hit a new interval
             if (targetStageIndex != currentStageIndex)
             {
                 currentStageIndex = targetStageIndex;
@@ -77,13 +83,43 @@ public class GameAdBreakManager : MonoBehaviour
             yield return null;
         }
 
-        // 4. End Ad & Restore Main Video
+        // 4. Pause Gameplay & Show End Reward Screen
         SetGameplayActive(false);
+
+        yield return StartCoroutine(ShowEndScreenSequence());
+
+        // 5. Cleanup & Restore Main Video
         DisableAllBackgrounds();
 
         if (adOverlayPanel != null) adOverlayPanel.SetActive(false);
+        if (endScreenPanel != null) endScreenPanel.SetActive(false);
+
         if (mainVideoDisplay != null) mainVideoDisplay.SetActive(true);
         if (mainVideoPlayer != null) mainVideoPlayer.Play();
+    }
+
+    private IEnumerator ShowEndScreenSequence()
+    {
+        if (endScreenPanel != null)
+        {
+            // Update reward text with player's total points
+            if (rewardText != null)
+            {
+                rewardText.text = $"GREAT JOB!\nScore: {currentScore}\nYou unlocked a 10% discount!";
+            }
+
+            // Display dark end screen panel
+            endScreenPanel.SetActive(true);
+
+            // Trigger enter animation if Animator is assigned
+            if (endScreenAnimator != null)
+            {
+                endScreenAnimator.SetTrigger("Show");
+            }
+
+            // Wait while player views their reward screen
+            yield return new WaitForSeconds(endScreenDisplayDuration);
+        }
     }
 
     private void ApplyStage(AdStageData stage)
