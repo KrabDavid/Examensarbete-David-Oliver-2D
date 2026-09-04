@@ -2162,7 +2162,7 @@ MonoBehaviour:
   popUpDuration: 10
   mcdonaldsAdClip: {fileID: 32900000, guid: a86feb881d9e62f48a7bbe9585f0d99e, type: 3}
   elgigantenAdClip: {fileID: 32900000, guid: 928b642abbf322940939fcc821bbc846, type: 3}
-  nikeAdClip: {fileID: 32900000, guid: 4e7518dae71dc954881f997591bac438, type: 3}
+  nikeAdClip: {fileID: 32900000, guid: 5ce23faae6da07f4ca712719fcca80b1, type: 3}
   adCategories:
   - categoryName: Travel
     categoryClips:
