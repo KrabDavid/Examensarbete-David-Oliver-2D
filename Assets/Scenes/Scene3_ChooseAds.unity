@@ -2164,22 +2164,22 @@ MonoBehaviour:
   elgigantenAdClip: {fileID: 32900000, guid: 928b642abbf322940939fcc821bbc846, type: 3}
   nikeAdClip: {fileID: 32900000, guid: 5ce23faae6da07f4ca712719fcca80b1, type: 3}
   adCategories:
-  - categoryName: Travel
+  - categoryName: Resor
     categoryClips:
     - {fileID: 32900000, guid: 689ca4c3942a1a9409d06332a03a01d5, type: 3}
     - {fileID: 32900000, guid: 940aef153fbdbd54d86c4af64fa9a872, type: 3}
     - {fileID: 32900000, guid: 5913a5ca6e20ea747ba61584aaa5bc0c, type: 3}
-  - categoryName: Pets and animals
+  - categoryName: Djur
     categoryClips:
     - {fileID: 32900000, guid: 85b593b45a3477a4481816e794d78851, type: 3}
     - {fileID: 32900000, guid: 888defb4409afc348b389fa770761220, type: 3}
     - {fileID: 32900000, guid: f60d83bafc60cf640a8d1f900cbe51de, type: 3}
-  - categoryName: Interior design
+  - categoryName: 'Inredning '
     categoryClips:
     - {fileID: 32900000, guid: 6c9e501bbbcedab49a46c0e162cdf9bb, type: 3}
     - {fileID: 32900000, guid: ab8bd1c7c871d134780cd8c6e5215c45, type: 3}
     - {fileID: 32900000, guid: bc4b4fae020f648418e0b6b1131edadd, type: 3}
-  - categoryName: Training and lifestyle
+  - categoryName: "Tr\xE4ning och livsstil  "
     categoryClips:
     - {fileID: 32900000, guid: 3b529935f2b22084181b644c4cd1c0fc, type: 3}
     - {fileID: 32900000, guid: 58765ab8d03bcdc4187ab52ed2e9a724, type: 3}
