@@ -815,7 +815,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0}
   m_AnchorMax: {x: 1, y: 0}
-  m_AnchoredPosition: {x: -27.58313, y: 0}
+  m_AnchoredPosition: {x: -27.583008, y: 0}
   m_SizeDelta: {x: 425.9713, y: 69.1396}
   m_Pivot: {x: 1, y: 0}
 --- !u!114 &730871891
@@ -1016,7 +1016,7 @@ RectTransform:
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 1692129831}
   - {fileID: 1695577101}
@@ -2162,6 +2162,7 @@ MonoBehaviour:
   popUpDuration: 10
   mcdonaldsAdClip: {fileID: 32900000, guid: a86feb881d9e62f48a7bbe9585f0d99e, type: 3}
   elgigantenAdClip: {fileID: 32900000, guid: 928b642abbf322940939fcc821bbc846, type: 3}
+  nikeAdClip: {fileID: 32900000, guid: 4e7518dae71dc954881f997591bac438, type: 3}
   adCategories:
   - categoryName: Travel
     categoryClips:

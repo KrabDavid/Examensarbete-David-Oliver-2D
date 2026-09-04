@@ -21,8 +21,9 @@ public class StandardAdBreakManager : MonoBehaviour
     [Header("Guaranteed Ads")]
     public VideoClip mcdonaldsAdClip;   // First Ad
     public VideoClip elgigantenAdClip;  // Second Ad
+    public VideoClip nikeAdClip;        // Third Ad
 
-    [Header("Remaining Ad Pool (Ad #3+)")]
+    [Header("Remaining Ad Pool (Ad #4+)")]
     public VideoClip[] allAdClips;
 
     private bool adHasBeenTriggered = false;
@@ -96,7 +97,12 @@ public class StandardAdBreakManager : MonoBehaviour
             {
                 selectedClip = elgigantenAdClip;
             }
-            // 3rd+ Ad = Random from pool
+            // 3rd Ad = Always Nike
+            else if (currentAdIndex == 3)
+            {
+                selectedClip = nikeAdClip;
+            }
+            // 4th+ Ad = Random from pool
             else
             {
                 selectedClip = GetUnplayedAd();
@@ -140,11 +146,12 @@ public class StandardAdBreakManager : MonoBehaviour
 
         foreach (var clip in allAdClips)
         {
-            // Ignore null, already played clips, and the fixed 1st/2nd clips
+            // Ignore null, already played clips, and the fixed 1st/2nd/3rd clips
             if (clip != null &&
                 !playedAdClips.Contains(clip) &&
                 clip != mcdonaldsAdClip &&
-                clip != elgigantenAdClip)
+                clip != elgigantenAdClip &&
+                clip != nikeAdClip)
             {
                 unplayed.Add(clip);
             }
@@ -155,10 +162,13 @@ public class StandardAdBreakManager : MonoBehaviour
         {
             playedAdClips.Clear();
 
-            // Re-populate valid options without McDonalds/Elgiganten
+            // Re-populate valid options without McDonalds/Elgiganten/Nike
             foreach (var clip in allAdClips)
             {
-                if (clip != null && clip != mcdonaldsAdClip && clip != elgigantenAdClip)
+                if (clip != null &&
+                    clip != mcdonaldsAdClip &&
+                    clip != elgigantenAdClip &&
+                    clip != nikeAdClip)
                 {
                     unplayed.Add(clip);
                 }

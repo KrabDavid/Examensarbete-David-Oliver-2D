@@ -36,8 +36,9 @@ public class AdBreakManager : MonoBehaviour
     public float popUpDuration = 10f;
 
     [Header("Guaranteed Ads")]
-    public VideoClip mcdonaldsAdClip;
-    public VideoClip elgigantenAdClip;
+    public VideoClip mcdonaldsAdClip;   // 1st Ad
+    public VideoClip elgigantenAdClip;  // 2nd Ad
+    public VideoClip nikeAdClip;        // 3rd Ad
 
     [Header("Ad Pool Settings")]
     public List<AdCategory> adCategories = new List<AdCategory>();
@@ -156,14 +157,22 @@ public class AdBreakManager : MonoBehaviour
             currentAdIndex++;
             VideoClip selectedClip = null;
 
+            // 1. Force McDonald's as 1st clip
             if (currentAdIndex == 1)
             {
                 selectedClip = mcdonaldsAdClip;
             }
+            // 2. Force Elgiganten as 2nd clip
             else if (currentAdIndex == 2)
             {
                 selectedClip = elgigantenAdClip;
             }
+            // 3. Force Nike as 3rd clip
+            else if (currentAdIndex == 3)
+            {
+                selectedClip = nikeAdClip;
+            }
+            // 4. 4th+ Ad: User-selected category active
             else if (activeSelectedCategory != null)
             {
                 selectedClip = GetUnplayedAdFromCategory(activeSelectedCategory);
@@ -175,6 +184,7 @@ public class AdBreakManager : MonoBehaviour
                     selectedClip = GetUnplayedAdFromAllSources();
                 }
             }
+            // 5. 4th+ Ad: Fallback random selection
             else
             {
                 selectedClip = GetUnplayedAdFromAllSources();
@@ -213,7 +223,6 @@ public class AdBreakManager : MonoBehaviour
     {
         if (categoryPopUpPanel == null) return;
 
-        // Play SFX when opening menu
         if (AudioManager.Instance != null)
         {
             AudioManager.Instance.PlayOpenClick();
@@ -232,7 +241,6 @@ public class AdBreakManager : MonoBehaviour
 
     private void SelectCategory(AdCategory chosenCategory)
     {
-        // Play SFX when confirming menu selection
         if (AudioManager.Instance != null)
         {
             AudioManager.Instance.PlayConfirmClick();
@@ -257,7 +265,8 @@ public class AdBreakManager : MonoBehaviour
             if (clip != null &&
                 !playedAdClips.Contains(clip) &&
                 clip != mcdonaldsAdClip &&
-                clip != elgigantenAdClip)
+                clip != elgigantenAdClip &&
+                clip != nikeAdClip)
             {
                 unplayed.Add(clip);
             }
@@ -280,7 +289,8 @@ public class AdBreakManager : MonoBehaviour
                     if (clip != null &&
                         !playedAdClips.Contains(clip) &&
                         clip != mcdonaldsAdClip &&
-                        clip != elgigantenAdClip)
+                        clip != elgigantenAdClip &&
+                        clip != nikeAdClip)
                     {
                         unplayedPool.Add(clip);
                     }
@@ -295,7 +305,8 @@ public class AdBreakManager : MonoBehaviour
                 if (clip != null &&
                     !playedAdClips.Contains(clip) &&
                     clip != mcdonaldsAdClip &&
-                    clip != elgigantenAdClip)
+                    clip != elgigantenAdClip &&
+                    clip != nikeAdClip)
                 {
                     unplayedPool.Add(clip);
                 }
@@ -312,7 +323,10 @@ public class AdBreakManager : MonoBehaviour
                 {
                     foreach (var clip in cat.categoryClips)
                     {
-                        if (clip != null && clip != mcdonaldsAdClip && clip != elgigantenAdClip)
+                        if (clip != null &&
+                            clip != mcdonaldsAdClip &&
+                            clip != elgigantenAdClip &&
+                            clip != nikeAdClip)
                         {
                             unplayedPool.Add(clip);
                         }
@@ -323,7 +337,10 @@ public class AdBreakManager : MonoBehaviour
             {
                 foreach (var clip in uncategorizedAdClips)
                 {
-                    if (clip != null && clip != mcdonaldsAdClip && clip != elgigantenAdClip)
+                    if (clip != null &&
+                        clip != mcdonaldsAdClip &&
+                        clip != elgigantenAdClip &&
+                        clip != nikeAdClip)
                     {
                         unplayedPool.Add(clip);
                     }
